@@ -13,9 +13,297 @@ import pygame
 
 
 # Audio file paths
+WELCOME = 'welcome.wav'
 SUITCASE_LEFT_SOUND = 'suitecase.wav'
 ACCESS_DENIED_SOUND = 'accessDenied.wav'
 ALARM_SOUND = 'alarm.wav'
+
+def set_background_image(image_path):
+    """Set background image for the app"""
+    import base64
+    
+    # Check if image exists
+    if os.path.exists(image_path):
+        with open(image_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode()
+        
+        # CSS to set background with blur and better contrast
+        st.markdown(
+            f"""
+               <style>
+            /* Background with blur effect */
+            .stApp::before {{
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: url("data:image/png;base64,{encoded_string}");
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                filter: blur(3px) brightness(0.4);
+                z-index: -1;
+            }}
+            
+            .stApp {{
+                background: transparent;
+            }}
+            
+            /* Make header more visible */
+            .stApp > header {{
+                background-color: rgba(0, 0, 0, 0.9) !important;
+                backdrop-filter: blur(10px);
+            }}
+            
+            /* Sidebar with dark background */
+            section[data-testid="stSidebar"] {{
+                background-color: rgba(15, 23, 42, 0.98) !important;
+                backdrop-filter: blur(10px);
+            }}
+            
+            section[data-testid="stSidebar"] > div {{
+                background-color: transparent !important;
+            }}
+            
+            /* Remove default card backgrounds */
+            div[data-testid="stVerticalBlock"] > div {{
+                background-color: transparent !important;
+            }}
+            
+            /* Style main content container */
+            div[data-testid="stVerticalBlock"] {{
+                background-color: transparent !important;
+            }}
+            
+            /* Column containers - make them look like cards */
+            div[data-testid="column"] > div {{
+                background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.90)) !important;
+                backdrop-filter: blur(12px);
+                padding: 25px !important;
+                border-radius: 15px !important;
+                border: 1px solid rgba(59, 130, 246, 0.3) !important;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+                transition: all 0.3s ease !important;
+            }}
+            
+            div[data-testid="column"] > div:hover {{
+                border-color: rgba(59, 130, 246, 0.6) !important;
+                box-shadow: 0 12px 48px rgba(59, 130, 246, 0.2) !important;
+                transform: translateY(-2px);
+            }}
+            
+            /* Title styling */
+            h1 {{
+                color: #ffffff !important;
+                text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
+                font-weight: 800 !important;
+                padding: 20px;
+                background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.90)) !important;
+                border-radius: 15px;
+                border: 1px solid rgba(59, 130, 246, 0.4);
+                margin-bottom: 10px !important;
+            }}
+            
+            h2 {{
+                color: #ffffff !important;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+                font-weight: 700 !important;
+                padding: 15px 10px;
+                background: linear-gradient(90deg, rgba(59, 130, 246, 0.2), transparent);
+                border-left: 4px solid rgba(59, 130, 246, 0.8);
+                border-radius: 8px;
+                margin-bottom: 15px !important;
+            }}
+            
+            h3 {{
+                color: #93c5fd !important;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+                font-weight: 600 !important;
+            }}
+            
+            /* All text elements */
+            .stMarkdown, .stText, label, p, span {{
+                color: #ffffff !important;
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            }}
+            
+            /* Subtitle/Description */
+            .stMarkdown p {{
+                background-color: rgba(15, 23, 42, 0.8);
+                padding: 10px 15px;
+                border-radius: 8px;
+                border-left: 3px solid rgba(59, 130, 246, 0.6);
+            }}
+            
+            /* Input fields */
+            input, textarea, select {{
+                background-color: rgba(15, 23, 42, 0.95) !important;
+                color: #ffffff !important;
+                border: 2px solid rgba(59, 130, 246, 0.4) !important;
+                border-radius: 8px !important;
+            }}
+            
+            input:focus, textarea:focus, select:focus {{
+                border-color: rgba(59, 130, 246, 0.8) !important;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+            }}
+            
+            /* Buttons - better contrast */
+            .stButton > button {{
+                background: linear-gradient(135deg, rgba(30, 41, 59, 0.98), rgba(51, 65, 85, 0.95)) !important;
+                color: #ffffff !important;
+                border: 2px solid rgba(59, 130, 246, 0.6) !important;
+                font-weight: 700 !important;
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+                border-radius: 10px !important;
+                padding: 12px 24px !important;
+                transition: all 0.3s ease !important;
+            }}
+            
+            .stButton > button:hover {{
+                background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9)) !important;
+                border-color: rgba(59, 130, 246, 1) !important;
+                transform: scale(1.05);
+                box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4) !important;
+            }}
+            
+            /* Primary button (Démarrer) */
+            .stButton > button[kind="primary"] {{
+                background: linear-gradient(135deg, rgba(220, 38, 38, 0.98), rgba(185, 28, 28, 0.95)) !important;
+                border: 2px solid rgba(239, 68, 68, 0.8) !important;
+            }}
+            
+            .stButton > button[kind="primary"]:hover {{
+                background: linear-gradient(135deg, rgba(239, 68, 68, 1), rgba(220, 38, 38, 1)) !important;
+                border-color: rgba(248, 113, 113, 1) !important;
+                box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5) !important;
+            }}
+            
+            /* Radio buttons */
+            div[data-testid="stRadio"] {{
+                background-color: rgba(15, 23, 42, 0.9) !important;
+                padding: 15px;
+                border-radius: 10px;
+                border: 1px solid rgba(59, 130, 246, 0.3);
+            }}
+            
+            /* Metrics - card style */
+            div[data-testid="stMetric"] {{
+                background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.90)) !important;
+                padding: 20px !important;
+                border-radius: 12px !important;
+                border: 2px solid rgba(59, 130, 246, 0.4) !important;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+            }}
+            
+            div[data-testid="stMetric"] label {{
+                color: #93c5fd !important;
+                font-weight: 700 !important;
+                font-size: 1.1rem !important;
+            }}
+            
+            div[data-testid="stMetric"] [data-testid="stMetricValue"] {{
+                color: #ffffff !important;
+                font-size: 2.2rem !important;
+                font-weight: 800 !important;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            }}
+            
+            /* Dataframe */
+            div[data-testid="stDataFrame"] {{
+                background-color: rgba(15, 23, 42, 0.98) !important;
+                border-radius: 12px;
+                border: 1px solid rgba(59, 130, 246, 0.3);
+                padding: 10px;
+            }}
+            
+            /* Expander */
+            div[data-testid="stExpander"] {{
+                background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.90)) !important;
+                border: 1px solid rgba(59, 130, 246, 0.4) !important;
+                border-radius: 10px;
+                backdrop-filter: blur(10px);
+            }}
+            
+            /* Number input */
+            div[data-baseweb="input"] {{
+                background-color: rgba(15, 23, 42, 0.95) !important;
+                border-radius: 8px;
+            }}
+            
+            /* Slider */
+            div[data-testid="stSlider"] {{
+                background-color: rgba(15, 23, 42, 0.9) !important;
+                padding: 15px;
+                border-radius: 10px;
+                border: 1px solid rgba(59, 130, 246, 0.3);
+            }}
+            
+            /* Checkbox */
+            div[data-testid="stCheckbox"] {{
+                background-color: rgba(15, 23, 42, 0.9) !important;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid rgba(59, 130, 246, 0.3);
+            }}
+            
+            /* Select box */
+            div[data-baseweb="select"] {{
+                background-color: rgba(15, 23, 42, 0.98) !important;
+                border-radius: 8px;
+            }}
+            
+            /* Text input */
+            div[data-baseweb="base-input"] {{
+                background-color: rgba(15, 23, 42, 0.98) !important;
+            }}
+            
+            /* File uploader */
+            section[data-testid="stFileUploader"] {{
+                background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.90)) !important;
+                border: 2px dashed rgba(59, 130, 246, 0.6) !important;
+                border-radius: 12px;
+                padding: 25px;
+                backdrop-filter: blur(10px);
+            }}
+            
+            /* Info, warning, success boxes */
+            div[data-testid="stAlert"] {{
+                background-color: rgba(15, 23, 42, 0.98) !important;
+                backdrop-filter: blur(10px);
+                border-radius: 10px;
+            }}
+            
+            /* Markdown horizontal rule */
+            hr {{
+                border: none !important;
+                height: 2px !important;
+                background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent) !important;
+                margin: 20px 0 !important;
+            }}
+            
+            /* Improve video placeholder visibility */
+            div[data-testid="stImage"] {{
+                border: 2px solid rgba(59, 130, 246, 0.6);
+                border-radius: 12px;
+                background-color: rgba(0, 0, 0, 0.7);
+                padding: 5px;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            }}
+            
+            /* Empty placeholder styling */
+            .element-container {{
+                background-color: transparent !important;
+            }}
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        st.warning(f"⚠️ Image de fond introuvable: {image_path}")
+
 
 # Configuration
 st.set_page_config(
@@ -23,7 +311,8 @@ st.set_page_config(
     page_icon=" Md.Md",
     layout="wide"
 )
-
+# Set background image
+set_background_image('port.jpg')  # Change to your image filename
 # Initialize session state
 def init_session_state():
     defaults = {
@@ -170,7 +459,7 @@ def log_alarm(alarm_type, message, severity="AVERTISSEMENT"):
     st.session_state.alarm_log = st.session_state.alarm_log[:100]
     
     if severity == "CRITIQUE" and st.session_state.alarm_cooldown == 0:
-        play_alarm(ALARM_SOUND)
+        # play_alarm(ALARM_SOUND)
         st.session_state.alarm_cooldown = 30
 
 
@@ -555,6 +844,7 @@ if stop_button:
     st.session_state.running = False
 
 # Video processing
+# Video processing
 if st.session_state.running:
     model_path = selected_model.replace(' (Défaut)', '')
     model = load_yolo_model(model_path)
@@ -575,6 +865,14 @@ if st.session_state.running:
                 st.session_state.running = False
         
         if cap and cap.isOpened():
+            # Play welcome sound when camera starts
+            if 'welcome_played' not in st.session_state:
+                st.session_state.welcome_played = False
+            
+            if not st.session_state.welcome_played:
+                play_alarm(WELCOME)
+                st.session_state.welcome_played = True
+            
             frame_count = 0
             
             while st.session_state.running:
@@ -630,7 +928,8 @@ if st.session_state.running:
                 time.sleep(0.03)
             
             cap.release()
-
+            # Reset welcome flag when camera stops
+            st.session_state.welcome_played = False
 # Security log
 st.markdown("---")
 st.subheader("📋 Journal de Sécurité")
